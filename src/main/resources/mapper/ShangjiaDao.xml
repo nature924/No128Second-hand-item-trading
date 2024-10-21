@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShangjiaDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.shangjia_name as shangjiaName
+        ,a.shangjia_phone as shangjiaPhone
+        ,a.shangjia_email as shangjiaEmail
+        ,a.shangjia_photo as shangjiaPhoto
+        ,a.shangjia_xingji_types as shangjiaXingjiTypes
+        ,a.new_money as newMoney
+        ,a.shangjia_content as shangjiaContent
+        ,a.shangjia_delete as shangjiaDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShangjiaView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM shangjia  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.shangjiaName != '' and params.shangjiaName != null and params.shangjiaName != 'null' ">
+                and a.shangjia_name like CONCAT('%',#{params.shangjiaName},'%')
+            </if>
+            <if test=" params.shangjiaPhone != '' and params.shangjiaPhone != null and params.shangjiaPhone != 'null' ">
+                and a.shangjia_phone like CONCAT('%',#{params.shangjiaPhone},'%')
+            </if>
+            <if test=" params.shangjiaEmail != '' and params.shangjiaEmail != null and params.shangjiaEmail != 'null' ">
+                and a.shangjia_email like CONCAT('%',#{params.shangjiaEmail},'%')
+            </if>
+            <if test="params.shangjiaXingjiTypes != null and params.shangjiaXingjiTypes != ''">
+                and a.shangjia_xingji_types = #{params.shangjiaXingjiTypes}
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and a.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and a.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.shangjiaContent != '' and params.shangjiaContent != null and params.shangjiaContent != 'null' ">
+                and a.shangjia_content like CONCAT('%',#{params.shangjiaContent},'%')
+            </if>
+            <if test="params.shangjiaDeleteStart != null and params.shangjiaDeleteStart != ''">
+                <![CDATA[  and a.shangjia_delete >= #{params.shangjiaDeleteStart}   ]]>
+            </if>
+            <if test="params.shangjiaDeleteEnd != null and params.shangjiaDeleteEnd != ''">
+                <![CDATA[  and a.shangjia_delete <= #{params.shangjiaDeleteEnd}   ]]>
+            </if>
+             <if test="params.shangjiaDelete != null and params.shangjiaDelete != ''">
+                and a.shangjia_delete = #{params.shangjiaDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

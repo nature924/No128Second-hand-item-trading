@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShangpinChatDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.shangjia_id as shangjiaId
+        ,a.shangpin_chat_issue_text as shangpinChatIssueText
+        ,a.shangpin_chat_issue_photo as shangpinChatIssuePhoto
+        ,a.issue_time as issueTime
+        ,a.shangpin_chat_reply_text as shangpinChatReplyText
+        ,a.shangpin_chat_reply_photo as shangpinChatReplyPhoto
+        ,a.reply_time as replyTime
+        ,a.zhuangtai_types as zhuangtaiTypes
+        ,a.shangpin_chat_types as shangpinChatTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShangpinChatView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,shangjia.shangjia_name as shangjiaName
+        ,shangjia.shangjia_phone as shangjiaPhone
+        ,shangjia.shangjia_email as shangjiaEmail
+        ,shangjia.shangjia_photo as shangjiaPhoto
+        ,shangjia.shangjia_xingji_types as shangjiaXingjiTypes
+        ,shangjia.new_money as newMoney
+        ,shangjia.shangjia_content as shangjiaContent
+        ,shangjia.shangjia_delete as shangjiaDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.new_money as newMoney
+        ,yonghu.yonghu_email as yonghuEmail
+
+        FROM shangpin_chat  a
+        left JOIN shangjia shangjia ON a.shangjia_id = shangjia.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.shangjiaId != null and params.shangjiaId != ''">
+                and (
+                    a.shangjia_id = #{params.shangjiaId}
+                )
+            </if>
+            <if test=" params.shangpinChatIssueText != '' and params.shangpinChatIssueText != null and params.shangpinChatIssueText != 'null' ">
+                and a.shangpin_chat_issue_text like CONCAT('%',#{params.shangpinChatIssueText},'%')
+            </if>
+            <if test=" params.issueTimeStart != '' and params.issueTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.issue_time) >= UNIX_TIMESTAMP(#{params.issueTimeStart}) ]]>
+            </if>
+            <if test=" params.issueTimeEnd != '' and params.issueTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.issue_time) <= UNIX_TIMESTAMP(#{params.issueTimeEnd}) ]]>
+            </if>
+            <if test=" params.shangpinChatReplyText != '' and params.shangpinChatReplyText != null and params.shangpinChatReplyText != 'null' ">
+                and a.shangpin_chat_reply_text like CONCAT('%',#{params.shangpinChatReplyText},'%')
+            </if>
+            <if test=" params.replyTimeStart != '' and params.replyTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.reply_time) >= UNIX_TIMESTAMP(#{params.replyTimeStart}) ]]>
+            </if>
+            <if test=" params.replyTimeEnd != '' and params.replyTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.reply_time) <= UNIX_TIMESTAMP(#{params.replyTimeEnd}) ]]>
+            </if>
+            <if test="params.zhuangtaiTypes != null and params.zhuangtaiTypes != ''">
+                and a.zhuangtai_types = #{params.zhuangtaiTypes}
+            </if>
+            <if test="params.shangpinChatTypes != null and params.shangpinChatTypes != ''">
+                and a.shangpin_chat_types = #{params.shangpinChatTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断商家的id不为空 -->
+            <if test=" params.shangjiaIdNotNull != '' and params.shangjiaIdNotNull != null and params.shangjiaIdNotNull != 'null' ">
+                and a.shangjia_id IS NOT NULL
+            </if>
+            <if test=" params.shangjiaName != '' and params.shangjiaName != null and params.shangjiaName != 'null' ">
+                and shangjia.shangjia_name like CONCAT('%',#{params.shangjiaName},'%')
+            </if>
+            <if test=" params.shangjiaPhone != '' and params.shangjiaPhone != null and params.shangjiaPhone != 'null' ">
+                and shangjia.shangjia_phone like CONCAT('%',#{params.shangjiaPhone},'%')
+            </if>
+            <if test=" params.shangjiaEmail != '' and params.shangjiaEmail != null and params.shangjiaEmail != 'null' ">
+                and shangjia.shangjia_email like CONCAT('%',#{params.shangjiaEmail},'%')
+            </if>
+            <if test="params.shangjiaXingjiTypes != null  and params.shangjiaXingjiTypes != ''">
+                and shangjia.shangjia_xingji_types = #{params.shangjiaXingjiTypes}
+            </if>
+
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and shangjia.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and shangjia.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.shangjiaContent != '' and params.shangjiaContent != null and params.shangjiaContent != 'null' ">
+                and shangjia.shangjia_content like CONCAT('%',#{params.shangjiaContent},'%')
+            </if>
+            <if test="params.shangjiaDeleteStart != null  and params.shangjiaDeleteStart != '' ">
+                <![CDATA[  and shangjia.shangjia_delete >= #{params.shangjiaDeleteStart}   ]]>
+            </if>
+            <if test="params.shangjiaDeleteEnd != null  and params.shangjiaDeleteEnd != '' ">
+                <![CDATA[  and shangjia.shangjia_delete <= #{params.shangjiaDeleteEnd}   ]]>
+            </if>
+            <if test="params.shangjiaDelete != null  and params.shangjiaDelete != '' ">
+                and shangjia.shangjia_delete = #{params.shangjiaDelete}
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
